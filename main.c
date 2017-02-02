@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define PIXEL_SIZE 12
 #define CHANNEL_SIZE 4
@@ -19,6 +20,10 @@ typedef struct {
 } complex;
 
 int main(int argc, char **argv) {
+	/*char* test = "hello wolrd!";
+	char* test2 = (char*)(malloc(100));
+	void* test3 = malloc(100);*/
+	
 	// need 7 arguments: program name and 6 parameters
 	if (argc != 7) {
 		printf("Invalid number of arguments. Exiting with status 1.\n");
@@ -46,9 +51,22 @@ int main(int argc, char **argv) {
 
 	basic_compute();
 
-//	*(char*)(storage) = "255 255 000";
-	(char*)(storage) = '6';
-	printf("%c", storage);
+	//*(char*)(storage) = "255 255 000";
+//	char* str = "255 255 000";
+
+//	strcpy(storage, str);
+	
+	printf("%s\n", storage);
+
+/*	printf("%s\n", test);
+
+	test2 = "hello me?";
+	printf("%s\n", test2);
+
+	test3 = "yep!!!";
+	printf("%s\n", test3);*/
+	
+//	printf("%c", storage);
 	
     // spawn thread
 	
