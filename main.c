@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define PIXEL_SIZE 12
 #define CHANNEL_SIZE 4
@@ -107,8 +108,20 @@ complex f(complex z, complex c) {
 }
 
 void set_color(int x, int y, int iterations) {
+	int r, g, b;
+	if (iterations == MAX_ITER) {
+		r = 0;
+		g = 0;
+		b = 0;
+	} else {
+		int base = (int)(255*sqrt(1-pow((((double)iterations)-MAX_ITER)/MAX_ITER,2)));
+		r = base;
+		g = base;
+		b = 255;
+	}
     int gray = 255 - 255.0/MAX_ITER*iterations;
-	write_data_d(x,y,gray,gray,gray);
+	
+	write_data_d(x,y,r,g,b);
 }
 
 complex pixel_to_complex(int pix_x, int pix_y) {
