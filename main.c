@@ -6,13 +6,16 @@
 #define CHANNEL_SIZE 4
 #define MAX_ITER 100
 
+
 typedef struct complex {
    double real;
    double imag;
 } complex;
 
+
 // define headers
 int compute_iterations(complex c);
+complex f(complex z, complex c);
 void set_color(int x, int y, int iterations);
 complex pixel_to_complex(int pix_x, int pix_y);
 void init_storage(void);
@@ -22,10 +25,12 @@ void write_data_s(const int x, const int y, char *rgb);
 void write_data_d(const int x, const int y, int r, int g, int b);
 void save_file(char *name);
 
+
 // initialize globals
 double min_x, max_x, min_y, max_y;
 int pix_width, pix_height;
 void *storage;
+
 
 int main(int argc, char **argv) {
 
@@ -83,22 +88,27 @@ int main(int argc, char **argv) {
 }
 
 int compute_iterations(complex c) {
-	double f_real = c.real;
-	double f_imag = c.imag;
+	complex z = {0,0};
 	
 	int iter = 0;
 	
-	while (iter < MAX_ITER && f_real*f_real + f_imag*f_imag < 4) {
-		f_real = f_real*f_real - f_imag*f_imag + c.real;
-		f_imag = 2*f_real*f_imag + c.imag;
+	while (iter < MAX_ITER && z.real*z.real + z.imag*z.imag < 4) {
+		z = f(z, c);
 		++iter;
 	}
 
 	return iter;
 }
 
+complex f(complex z, complex c) {
+	complex res;
+	res.real = z.real*z.real - z.imag*z.imag + c.real;
+	res.imag = 2*z.real*z.imag + c.imag;
+	return res;
+}
+
 void set_color(int x, int y, int iterations) {
-    int gray = 255.0/MAX_ITER*iterations;
+    int gray = 255 - 255.0/MAX_ITER*iterations;
 	write_data_d(x,y,gray,gray,gray);
 }
 
