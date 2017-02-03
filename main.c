@@ -2,16 +2,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <pthread.h>
 
 #define PIXEL_SIZE 12
 #define CHANNEL_SIZE 4
 #define MAX_ITER 1500
+#define NTHREADS 40
 
 
 typedef struct complex {
    double real;
    double imag;
 } complex;
+
+typedef struct pair {
+	int x;
+	int y;
+} pair;
 
 
 // define headers
@@ -24,6 +31,7 @@ char *strcpy_no_nul(char *dest, const char *src);
 void write_data_s(const int x, const int y, char *rgb);
 void write_data_d(const int x, const int y, int r, int g, int b);
 void save_file(char *name);
+void *process_pixel(void *pixel);
 
 
 // initialize globals
@@ -59,33 +67,59 @@ int main(int argc, char **argv) {
 	
 	init_storage();
 
+	// spawn threads
+	int n_threads = pix_width*pix_height;
+	pthread_t *threads = (pthread_t*)malloc(sizeof(pthread_t)*n_threads);
+	pair *pairs = (pair*)malloc(sizeof(pair)*n_threads);
+
+	int index = 0;
 	for (int x=0; x<pix_width; ++x) {
 		for (int y=0; y<pix_height; ++y) {
-			complex c = pixel_to_complex(x,y);
-			int iter = compute_iterations(c);
-			//printf("x: %d\ny: %d\ncomplex: %f+%fi\niterations: %d\n",
-			//     x, y, c.real, c.imag, iter);  
-			set_color(x, y, iter);
+			//printf("Thread: (%d, %d)\n", x, y);
+			pair next_pix = {x,y};
+			pairs[index] = next_pix;
+    		pthread_create(&(threads[index]), 
+		                   NULL, 
+		                   process_pixel, 
+		                   (void*)(&(pairs[index])));
+			//pthread_join(the_thread, NULL);
+//			process_pixel((void*)&pixel);
+			++index;
 		}   
 	}
 
-//	basic_compute();
-	
-//	printf("STORAGE:\n%s", storage);
-//	complex c = {.real=-1, .imag=0.5};
-//	printf("%d\n", compute_iterations(c));
-	
-    // spawn thread
-	
+	printf("THREADS SPAWNED\n");
     // block on thread completion
+
+	for(int j=0; j < n_threads; j++) {
+		pthread_join(threads[j], NULL);
+		printf("j: %d\n",j);
+	}
 	
-	save_file("mandelbrot.pbm");
+	printf("THREADS COMPLETED\n");
+
+	// save file
+	save_file("mandelbrot_parallel.pbm");
 
 	// free the memory that was allocated
 	free(storage);
+	free(threads);
+	free(pairs);
 	
     return 0;
 }
+
+
+void *process_pixel(void *pixel) {
+	pair pix = *(pair*)pixel;
+	int x = pix.x;
+	int y = pix.y;
+	complex c = pixel_to_complex(x,y);
+	int iter = compute_iterations(c); 
+	set_color(x, y, iter);
+	//printf("(%d, %d)\n", x, y);
+}
+
 
 int compute_iterations(complex c) {
 	complex z = {0,0};
@@ -124,8 +158,6 @@ void set_color(int x, int y, int iterations) {
 }
 
 complex pixel_to_complex(int pix_x, int pix_y) {
-    // TODO check this function for correctness
-
 	double num_width = max_x - min_x;
 	double num_height = max_y - min_y;
 	complex c;
