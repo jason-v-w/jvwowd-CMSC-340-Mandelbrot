@@ -19,7 +19,6 @@ complex f(complex z, complex c);
 void set_color(int x, int y, int iterations);
 complex pixel_to_complex(int pix_x, int pix_y);
 void init_storage(void);
-void basic_compute(void);
 char *strcpy_no_nul(char *dest, const char *src);
 void write_data_s(const int x, const int y, char *rgb);
 void write_data_d(const int x, const int y, int r, int g, int b);
@@ -146,18 +145,6 @@ void init_storage(void) {
 	}
 
 	*(char*)(storage + pix_width*pix_height*PIXEL_SIZE) = '\0';
-}
-
-void basic_compute(void) {
-	int r = 0;
-	int g = 128;
-	int b = 56;
-	
-	for (int x=0; x<pix_width; ++x) {
-		for (int y=0; y<pix_height; ++y) {
-			write_data_d(x,y,r,g,b);
-		}   
-	}
 }
 
 
