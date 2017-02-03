@@ -75,7 +75,6 @@ int main(int argc, char **argv) {
 	int index = 0;
 	for (int x=0; x<pix_width; ++x) {
 		for (int y=0; y<pix_height; ++y) {
-			//printf("Thread: (%d, %d)\n", x, y);
 			pair next_pix = {x,y};
 			pairs[index] = next_pix;
     		pthread_create(&(threads[index]), 
@@ -130,9 +129,9 @@ void *process_pixel(void *pixel) {
 void *thread_row_fun(void *x_p) {
 	int x = *(int*)x_p;
 	for (int y=0; y<pix_height; ++y) {
-		//printf("Thread: (%d, %d)\n", x, y);
 		pair pix = {x,y};
-		//pairs[index] = next_pix;
+		int index = x + pix_width*y;
+		pairs[index] = pix;
 		process_pixel((void*)&pix);
 	} 
 }

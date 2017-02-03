@@ -1,1 +1,4 @@
 overwrite all memory data with a delimiter
+
+ask breems:
+	can a mutex be used such that from the time a function is called until
