@@ -117,7 +117,7 @@ void set_color(int x, int y, int iterations) {
 		int base = (int)(255*sqrt(1-pow((((double)iterations)-MAX_ITER)/MAX_ITER,2)));
 		r = base;
 		g = base;
-		b = 255;
+		b = 0 + (255.0-0)/MAX_ITER*iterations;
 	}
     int gray = 255 - 255.0/MAX_ITER*iterations;
 	
