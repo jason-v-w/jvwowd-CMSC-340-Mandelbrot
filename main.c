@@ -5,7 +5,7 @@
 
 #define PIXEL_SIZE 12
 #define CHANNEL_SIZE 4
-#define MAX_ITER 100
+#define MAX_ITER 1500
 
 
 typedef struct complex {
@@ -119,7 +119,6 @@ void set_color(int x, int y, int iterations) {
 		g = base;
 		b = 0 + (255.0-0)/MAX_ITER*iterations;
 	}
-    int gray = 255 - 255.0/MAX_ITER*iterations;
 	
 	write_data_d(x,y,r,g,b);
 }
