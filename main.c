@@ -8,6 +8,7 @@
 // define headers
 void init_storage(void);
 void basic_compute(void);
+char *strcpy_no_nul(char *d, const char *s);
 
 // initialize globals
 double min_x, max_x, min_y, max_y;
@@ -20,10 +21,7 @@ typedef struct {
 } complex;
 
 int main(int argc, char **argv) {
-	/*char* test = "hello wolrd!";
-	char* test2 = (char*)(malloc(100));
-	void* test3 = malloc(100);*/
-	
+
 	// need 7 arguments: program name and 6 parameters
 	if (argc != 7) {
 		printf("Invalid number of arguments. Exiting with status 1.\n");
@@ -47,26 +45,37 @@ int main(int argc, char **argv) {
 	// storage is a void* pointer to the memory block
 	storage = malloc(PIXEL_SIZE*pix_width*pix_height + 1);
 
+/*	for (int i=0; i<(PIXEL_SIZE*pix_width*pix_height + 1); ++i) {
+		if (*(char*)(storage+i) == '\0') {
+			printf("*");
+		} else {
+			printf("%c",*(char*)(storage+i));
+		}
+	}
+	printf("\n\n");*/
+	
 	init_storage();
 
+/*	for (int i=0; i<(PIXEL_SIZE*pix_width*pix_height + 1); ++i) {
+		if (*(char*)(storage+i) == '\0') {
+			printf("*");
+		} else {
+			printf("%c",*(char*)(storage+i));
+		}
+	}
+	printf("\n\n");*/
+
 	basic_compute();
-
-	//*(char*)(storage) = "255 255 000";
-//	char* str = "255 255 000";
-
-//	strcpy(storage, str);
 	
-	printf("%s\n", storage);
+	printf("%s\n\n\n", storage);
 
-/*	printf("%s\n", test);
-
-	test2 = "hello me?";
-	printf("%s\n", test2);
-
-	test3 = "yep!!!";
-	printf("%s\n", test3);*/
-	
-//	printf("%c", storage);
+/*	for (int i=0; i<(PIXEL_SIZE*pix_width*pix_height + 1); ++i) {
+		if (*(char*)(storage+i) == '\0') {
+			printf("*");
+		} else {
+			printf("%c",*(char*)(storage+i));
+		}
+	}*/
 	
     // spawn thread
 	
@@ -80,6 +89,7 @@ int main(int argc, char **argv) {
 
 	// free the memory that was allocated
 	free(storage);
+	
     return 0;
 }
 
@@ -107,10 +117,10 @@ complex pixel_to_complex(int pix_x, int pix_y) {
 void init_storage(void) {
 	int row_size = pix_width*PIXEL_SIZE;
 
-	*(char*)(storage+pix_width*pix_height) = '\0';
+	*(char*)(storage + pix_width*pix_height*PIXEL_SIZE) = '\0';
 
-	for (int loc=1; loc<=pix_width*pix_height; ++loc) {
-		*(char*)(storage+loc*CHANNEL_SIZE - 1) = ' ';
+	for (int loc=1; loc<=pix_width*pix_height*PIXEL_SIZE/CHANNEL_SIZE; ++loc) {
+		*(char*)(storage + loc*CHANNEL_SIZE - 1) = ' ';
 	}
 
 	for (int row=1; row<=pix_height; ++row) {
@@ -124,12 +134,21 @@ void basic_compute(void) {
 	int b = 0;
 
 	int row_size = pix_width*PIXEL_SIZE;
+	char* str = "235 255 000";
 	
 	for (int x=0; x<pix_width; ++x) {
 		for (int y=0; y<pix_height; ++y) {
-			*(char**)(storage + x*PIXEL_SIZE + y*row_size) = "255 255 000";
+			strcpy_no_nul(storage + x*PIXEL_SIZE + y*row_size, str);
 		}   
 	}
+}
+
+char *strcpy_no_nul(char *dest, const char *src)
+{
+  unsigned i;
+  for (i=0; src[i] != '\0'; ++i)
+    dest[i] = src[i];
+  return dest;
 }
 
 
