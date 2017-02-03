@@ -82,18 +82,23 @@ int main(int argc, char **argv) {
 		                   NULL, 
 		                   process_pixel, 
 		                   (void*)(&(pairs[index])));
+			
+			int trash = pthread_detach((threads[index]));
+			printf("%d ", trash); 
 			//pthread_join(the_thread, NULL);
 //			process_pixel((void*)&pixel);
 			++index;
 		}   
 	}
 
+	
+
 	printf("THREADS SPAWNED\n");
     // block on thread completion
 
 	for(int j=0; j < n_threads; j++) {
 		pthread_join(threads[j], NULL);
-		printf("j: %d\n",j);
+		//printf("j: %d\n",j);
 	}
 	
 	printf("THREADS COMPLETED\n");
@@ -118,6 +123,18 @@ void *process_pixel(void *pixel) {
 	int iter = compute_iterations(c); 
 	set_color(x, y, iter);
 	//printf("(%d, %d)\n", x, y);
+	pthread_exit(NULL);
+}
+
+
+void *thread_row_fun(void *x_p) {
+	int x = *(int*)x_p;
+	for (int y=0; y<pix_height; ++y) {
+		//printf("Thread: (%d, %d)\n", x, y);
+		pair pix = {x,y};
+		//pairs[index] = next_pix;
+		process_pixel((void*)&pix);
+	} 
 }
 
 
