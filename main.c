@@ -4,21 +4,28 @@
 
 #define PIXEL_SIZE 12
 #define CHANNEL_SIZE 4
+#define MAX_ITER 1000
+
+typedef struct complex {
+   double real;
+   double imag;
+} complex;
 
 // define headers
+int compute_iterations(complex c);
+void set_color(int x, int y, int iterations);
+complex pixel_to_complex(int pix_x, int pix_y);
 void init_storage(void);
 void basic_compute(void);
-char *strcpy_no_nul(char *d, const char *s);
+char *strcpy_no_nul(char *dest, const char *src);
+void write_data_s(const int x, const int y, char *rgb);
+void write_data_d(const int x, const int y, int r, int g, int b);
+void save_file(char *name);
 
 // initialize globals
 double min_x, max_x, min_y, max_y;
 int pix_width, pix_height;
 void *storage;
-
-typedef struct {
-   double real;
-   double imag;
-} complex;
 
 int main(int argc, char **argv) {
 
@@ -44,48 +51,30 @@ int main(int argc, char **argv) {
 	// char is 1 byte in size
 	// storage is a void* pointer to the memory block
 	storage = malloc(PIXEL_SIZE*pix_width*pix_height + 1);
-
-/*	for (int i=0; i<(PIXEL_SIZE*pix_width*pix_height + 1); ++i) {
-		if (*(char*)(storage+i) == '\0') {
-			printf("*");
-		} else {
-			printf("%c",*(char*)(storage+i));
-		}
-	}
-	printf("\n\n");*/
 	
 	init_storage();
 
-/*	for (int i=0; i<(PIXEL_SIZE*pix_width*pix_height + 1); ++i) {
-		if (*(char*)(storage+i) == '\0') {
-			printf("*");
-		} else {
-			printf("%c",*(char*)(storage+i));
-		}
+	for (int x=0; x<pix_width; ++x) {
+		for (int y=0; y<pix_height; ++y) {
+			complex c = pixel_to_complex(x,y);
+			int iter = compute_iterations(c);
+			//printf("x: %d\ny: %d\ncomplex: %f+%fi\niterations: %d\n",
+			//     x, y, c.real, c.imag, iter);  
+			set_color(x, y, iter);
+		}   
 	}
-	printf("\n\n");*/
 
-	basic_compute();
+//	basic_compute();
 	
-	printf("%s\n\n\n", storage);
-
-/*	for (int i=0; i<(PIXEL_SIZE*pix_width*pix_height + 1); ++i) {
-		if (*(char*)(storage+i) == '\0') {
-			printf("*");
-		} else {
-			printf("%c",*(char*)(storage+i));
-		}
-	}*/
+//	printf("STORAGE:\n%s", storage);
+//	complex c = {.real=-1, .imag=0.5};
+//	printf("%d\n", compute_iterations(c));
 	
     // spawn thread
 	
     // block on thread completion
 	
-    // get saved string
-	
-    // write string to file
-	
-    // open file
+	save_file("mandelbrot.pbm");
 
 	// free the memory that was allocated
 	free(storage);
@@ -93,19 +82,36 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-int compute_iterations(double real, double imag, int max_interations) {
-    // TODO
+int compute_iterations(complex c) {
+	double f_real = c.real;
+	double f_imag = c.imag;
+	
+	int iter = 0;
+	
+	while (iter < MAX_ITER && f_real*f_real + f_imag*f_imag < 4) {
+		f_real = f_real*f_real - f_imag*f_imag + c.real;
+		f_imag = 2*f_real*f_imag + c.imag;
+		++iter;
+	}
+
+	return iter;
 }
 
-void set_color(int iterations) {
-    // TODO
-	//set the correct location in memory with the necessary
-	//color based on the iterations
+void set_color(int x, int y, int iterations) {
+    int gray = 255.0/MAX_ITER*iterations;
+	write_data_d(x,y,gray,gray,gray);
 }
 
 complex pixel_to_complex(int pix_x, int pix_y) {
-    // TODO
-    // return the complex number associated with the pixel
+    // TODO check this function for correctness
+
+	double num_width = max_x - min_x;
+	double num_height = max_y - min_y;
+	complex c;
+
+	c.real = min_x + num_width/pix_width*(pix_x+0.5);
+	c.imag = max_y - num_height/pix_height*(pix_y+0.5);
+	return c;
 }
 
 
@@ -117,38 +123,86 @@ complex pixel_to_complex(int pix_x, int pix_y) {
 void init_storage(void) {
 	int row_size = pix_width*PIXEL_SIZE;
 
-	*(char*)(storage + pix_width*pix_height*PIXEL_SIZE) = '\0';
-
+	for (int loc=0; loc<=pix_width*pix_height*PIXEL_SIZE; ++loc) {
+		*(char*)(storage + loc) = ' ';
+	}
+	
 	for (int loc=1; loc<=pix_width*pix_height*PIXEL_SIZE/CHANNEL_SIZE; ++loc) {
-		*(char*)(storage + loc*CHANNEL_SIZE - 1) = ' ';
+		*(char*)(storage + loc*CHANNEL_SIZE - 1) = '\t';
 	}
 
 	for (int row=1; row<=pix_height; ++row) {
 		*(char*)(storage+row*row_size - 1) = '\n';
 	}
+
+	*(char*)(storage + pix_width*pix_height*PIXEL_SIZE) = '\0';
 }
 
 void basic_compute(void) {
-	int r = 255;
-	int g = 255;
-	int b = 0;
-
-	int row_size = pix_width*PIXEL_SIZE;
-	char* str = "235 255 000";
+	int r = 0;
+	int g = 128;
+	int b = 56;
 	
 	for (int x=0; x<pix_width; ++x) {
 		for (int y=0; y<pix_height; ++y) {
-			strcpy_no_nul(storage + x*PIXEL_SIZE + y*row_size, str);
+			write_data_d(x,y,r,g,b);
 		}   
 	}
 }
 
+
+/*
+ * This will copy the string from src to dest, but
+ * unlike the standard strcpy, the ending null character
+ * will not be copied.
+ */
 char *strcpy_no_nul(char *dest, const char *src)
 {
   unsigned i;
   for (i=0; src[i] != '\0'; ++i)
     dest[i] = src[i];
   return dest;
+}
+
+
+/*
+ * This will write the provided rgb color string to storage.
+ * It is the callers responsibility to ensure that the string
+ * is no more than 11 characters in length and that no rgb value
+ * is less than 0 or greater than 255.
+ * 
+ * Example: write_data(1, 5, "100 008 89")
+ */
+void write_data_s(const int x, const int y, char *rgb) {
+	int row_size = pix_width*PIXEL_SIZE;
+	void *addr = storage + x*PIXEL_SIZE + y*row_size;
+	strcpy_no_nul(addr, rgb);
+}
+
+
+/*
+ * This will write the provided rgb data to storage.
+ * It is the callers responsibility to ensure that no rgb value
+ * is less than 0 or greater than 255.
+ * 
+ * Example: write_data(1, 5, 100, 8, 89)
+ */
+void write_data_d(const int x, const int y, int r, int g, int b) {
+	char str[11];
+	sprintf(str, "%d %d %d", r,g,b);
+	write_data_s(x,y,str);
+}
+
+
+/*
+ * This will save the storage to the file with the name provided.
+ * The resulting file will be formatted as a netpbm (pbm) file.
+ */
+void save_file(char *name) {
+	FILE *file = fopen(name, "w");
+	fprintf(file, "%s\n%d %d\n%d\n%s", 
+	        "P3", pix_width, pix_height, 255, storage);
+	fclose(file);
 }
 
 
