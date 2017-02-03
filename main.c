@@ -4,7 +4,7 @@
 
 #define PIXEL_SIZE 12
 #define CHANNEL_SIZE 4
-#define MAX_ITER 1000
+#define MAX_ITER 100
 
 typedef struct complex {
    double real;
