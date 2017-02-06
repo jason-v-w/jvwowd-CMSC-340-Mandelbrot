@@ -5,7 +5,7 @@
 
 #define PIXEL_SIZE 12
 #define CHANNEL_SIZE 4
-#define MAX_ITER 1500
+#define MAX_ITER 10000
 
 
 typedef struct complex {
@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
 	
     // block on thread completion
 	
-	save_file("mandelbrot.pbm");
+	save_file("mandelbrot");
 
 	// free the memory that was allocated
 	free(storage);
@@ -208,10 +208,23 @@ void write_data_d(const int x, const int y, int r, int g, int b) {
  * The resulting file will be formatted as a netpbm (pbm) file.
  */
 void save_file(char *name) {
+	char* base = name;
+	int str_len = 0;
+	while (*base!='\0') {
+		++str_len;
+		++base;
+	}
+
+	char* new_name = (char*)malloc(str_len+10); //arbitrary buffer
+	strcat(new_name, name);
+	
+	
 	FILE *file = fopen(name, "w");
 	fprintf(file, "%s\n%d %d\n%d\n%s", 
 	        "P3", pix_width, pix_height, 255, storage);
 	fclose(file);
+	
+	free(new_name);
 }
 
 
