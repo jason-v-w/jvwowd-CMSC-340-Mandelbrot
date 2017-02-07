@@ -4,6 +4,7 @@
 #include <math.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <time.h>
 
 #define PIXEL_SIZE 12
 #define CHANNEL_SIZE 4
@@ -84,8 +85,17 @@ int main(int argc, char **argv) {
 		pthread_join(threads[t], NULL);
 	}
 
+clock_t start, end;
+double cpu_time_used;
+     
+start = clock();
+	
 	// save file
 	save_file();
+
+end = clock();
+cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+printf("Time taken to write to disk: %f\n",cpu_time_used);
 
 	// free the memory that was allocated
 	free(storage);
