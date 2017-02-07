@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #define PIXEL_SIZE 12
 #define CHANNEL_SIZE 4
@@ -67,7 +68,9 @@ int main(int argc, char **argv) {
 	// char is 1 byte in size
 	// storage is a void* pointer to the memory block
 	storage = malloc(PIXEL_SIZE*pix_width*pix_height + 1);
-	
+
+	// initialize the storage space to have necessary tabs, newlines,
+	// spaces, and null character
 	init_storage();
 
 	// initialize all threads
@@ -264,12 +267,22 @@ void write_data_d(const int x, const int y, int r, int g, int b) {
  */
 void save_file() {
 	
-	FILE *file = fopen("mandelbrot.pbm~", "w");
+	FILE *file = fopen("~mandelbrot.pbm", "w");
 	fprintf(file, "%s\n%d %d\n%d\n%s", 
 	        "P3", pix_width, pix_height, 255, storage);
 	fclose(file);
 
-	system("convert mandelbrot.pbm~ mandelbrot.jpg && rm mandelbrot.pbm~");
+	// try to convert the temporary file to a jpg and if that succeeds
+	// remove the temporary pbm file
+	system("convert ~mandelbrot.pbm mandelbrot.jpg");
+	if (access("mandelbrot.jpg", F_OK ) != -1 ) {
+		// file exists
+		system("rm ~mandelbrot.pbm");
+	} else {
+		// file does not exist likely because 'convert' is not installed
+		printf("If you would like the output file converted from\
+				a pbm file to a jpg file, install ImageMagick.");
+	}
 }
 
 
