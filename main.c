@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <pthread.h>
 
 #define PIXEL_SIZE 12
 #define CHANNEL_SIZE 4
-#define MAX_ITER 50
+#define MAX_ITER 1000
+#define NUM_THREADS 40
 
 
 typedef struct complex {
@@ -15,6 +17,8 @@ typedef struct complex {
 
 
 // define headers
+void *thread_run();
+void compute_pixel(int x, int y);
 int compute_iterations(complex c);
 complex f(complex z, complex c);
 void set_color(int x, int y, int iterations);
@@ -30,6 +34,8 @@ void save_file(char *name);
 double min_x, max_x, min_y, max_y;
 int pix_width, pix_height;
 void *storage;
+pthread_mutex_t mutex;
+int current_row = 0;
 
 
 int main(int argc, char **argv) {
@@ -48,6 +54,9 @@ int main(int argc, char **argv) {
     pix_width = atoi(argv[5]);
     pix_height = atoi(argv[6]);
 
+	// initialize mutex
+	pthread_mutex_init(&mutex, NULL);
+
 	// image data will be stored directly into memory
 	// each pixel will have 3 channels (RGB) each 
 	// requiring 4 ascii characters (000-255) and a space/newline
@@ -59,32 +68,47 @@ int main(int argc, char **argv) {
 	
 	init_storage();
 
-	for (int x=0; x<pix_width; ++x) {
-		for (int y=0; y<pix_height; ++y) {
-			complex c = pixel_to_complex(x,y);
-			int iter = compute_iterations(c);
-			//printf("x: %d\ny: %d\ncomplex: %f+%fi\niterations: %d\n",
-			//     x, y, c.real, c.imag, iter);  
-			set_color(x, y, iter);
-		}   
+	// initialize all threads
+	pthread_t threads[NUM_THREADS];
+	for (int t=0; t<NUM_THREADS; ++t) {
+		pthread_create(&(threads[t]), NULL, thread_run, NULL);
 	}
 
-//	basic_compute();
-	
-//	printf("STORAGE:\n%s", storage);
-//	complex c = {.real=-1, .imag=0.5};
-//	printf("%d\n", compute_iterations(c));
-	
-    // spawn thread
-	
     // block on thread completion
-	
+	for (int t=0; t<NUM_THREADS; ++t) {
+		pthread_join(threads[t], NULL);
+	}
+
+	// save file
 	save_file("mandelbrot.pbm");
+
+	// convert file
+	// TODO
 
 	// free the memory that was allocated
 	free(storage);
 	
     return 0;
+}
+
+
+void *thread_run() {
+	while (1) {
+		pthread_mutex_lock(&mutex);
+			int row = current_row++;
+		pthread_mutex_unlock(&mutex);
+		if (row >= pix_height) break; 
+		for (int x=0; x<pix_width; ++x) {
+			compute_pixel(x, row);
+		}
+	}
+	pthread_exit(NULL);
+}
+
+void compute_pixel(int x, int y) {
+	complex c = pixel_to_complex(x,y);
+	int iter = compute_iterations(c);
+	set_color(x, y, iter);
 }
 
 int compute_iterations(complex c) {
