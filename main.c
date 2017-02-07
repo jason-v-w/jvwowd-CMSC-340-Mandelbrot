@@ -84,9 +84,6 @@ int main(int argc, char **argv) {
 	// save file
 	save_file();
 
-	// convert file
-	// TODO
-
 	// free the memory that was allocated
 	free(storage);
 	
@@ -267,12 +264,12 @@ void write_data_d(const int x, const int y, int r, int g, int b) {
  */
 void save_file() {
 	
-	FILE *file = fopen("mandelbrot.pbm", "w");
+	FILE *file = fopen("mandelbrot.pbm~", "w");
 	fprintf(file, "%s\n%d %d\n%d\n%s", 
 	        "P3", pix_width, pix_height, 255, storage);
 	fclose(file);
 
-	system("convert mandelbrot.pbm mandelbrot.jpg");
+	system("convert mandelbrot.pbm~ mandelbrot.jpg && rm mandelbrot.pbm~");
 }
 
 
