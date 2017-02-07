@@ -2,106 +2,103 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <pthread.h>
 #include <unistd.h>
 
-#define PIXEL_SIZE 12
-#define CHANNEL_SIZE 4
-#define MAX_ITER 1000
-#define NUM_THREADS 40
-
-
-// define a struct used to hold complex numbers
-typedef struct complex {
-   double real;
-   double imag;
-} complex;
-
-
-// define headers
-void *thread_run();
-void compute_pixel(int x, int y);
-int compute_iterations(complex c);
-complex f(complex z, complex c);
-void set_color(int x, int y, int iterations);
-complex pixel_to_complex(int pix_x, int pix_y);
-void init_storage(void);
-char *strcpy_no_nul(char *dest, const char *src);
-void write_data_s(const int x, const int y, char *rgb);
-void write_data_d(const int x, const int y, int r, int g, int b);
-void save_file();
-void display_status(double completed, double total, int length, int flush);
-
+#define PIX_WIDTH 3840
+#define PIX_HEIGHT 2160
 
 // initialize globals
-double min_x, max_x, min_y, max_y;
+double min_x, max_x, min_y, max_y, dist_x;
 int pix_width, pix_height;
-void *storage;
-pthread_mutex_t mutex;
-int current_row = 0;
 
 
 /* Main method */
 int main(int argc, char **argv) {
-	
-	// need 7 arguments: program name and 6 parameters
-	if (argc != 7) {
-		printf("Invalid number of arguments. Exiting with status 1.\n");
+	// need 4 arguments: program name and 3 parameters
+/*	if (argc != 4) {
+		printf("Invalid number of arguments (%d). Exiting with status 1.\n", 
+		       argc);
 		exit(1);
-	}
+	}*/
 
 	// assign globals
     min_x = atof(argv[1]);
     min_y = atof(argv[2]);
-    max_x = atof(argv[3]);
-    max_y = atof(argv[4]);
-    pix_width = atoi(argv[5]);
-    pix_height = atoi(argv[6]);
+    //max_x = atof(argv[3]);
+    //max_y = atof(argv[4]);
+    //pix_width = atoi(argv[5]);
+    //pix_height = atoi(argv[6]);
 
-	// initialize mutex
-	pthread_mutex_init(&mutex, NULL);
+	
+    dist_x = atof(argv[3]);
+	max_x = min_x + dist_x;
+	max_y = min_y + (dist_x*PIX_HEIGHT/PIX_WIDTH);
 
-	// image data will be stored directly into memory
-	// each pixel will have 3 channels (RGB) each 
-	// requiring 4 ascii characters (000-255) and a space/newline
-	// so we need 12 bytes/characters for each pixel plus 1 extra
-	// byte to place a \0 null character to terminate the string
-	// char is 1 byte in size
-	// storage is a void* pointer to the memory block
-	storage = malloc(PIXEL_SIZE*pix_width*pix_height + 1);
+	
+/*	printf("min_x: %f\n", min_x);
+	printf("min_y: %f\n", min_y);
+	printf("dist_x: %f\n", dist_x);
+	printf("max_x: %f\n", max_x);
+	printf("max_y: %f\n", max_y);*/
 
-	// initialize the storage space to have necessary tabs, newlines,
-	// spaces, and null character
-	init_storage();
+	char *max_x_str = (char*)malloc(30);
+	char *max_y_str = (char*)malloc(30);
+	char *pix_x_str = (char*)malloc(30);
+	char *pix_y_str = (char*)malloc(30);
+	sprintf(max_x_str, "%f", max_x);
+	sprintf(max_y_str, "%f", max_y);
+	sprintf(pix_x_str, "%d", PIX_WIDTH);
+	sprintf(pix_y_str, "%d", PIX_HEIGHT);
+	
 
-	// initialize all threads
-	pthread_t threads[NUM_THREADS];
-	for (int t=0; t<NUM_THREADS; ++t) {
-		pthread_create(&(threads[t]), NULL, thread_run, NULL);
-	}
+/*	execl("./main.o", argv[0], 
+	      min_x, 
+	      min_y, 
+	      max_x, 
+	      max_y, 
+	      pix_width, 
+	      pix_height,
+	      (char*)NULL);*/
 
-	// display status bar
-	int status_length = 50;
-	printf("\nComputing image...\n");
-	while (current_row < pix_height) {
-		display_status(current_row, pix_height, status_length, 0);
-		usleep(10000);
-	}
-	display_status(current_row, pix_height, status_length, 1);
+	printf("Arguments:\n");
+	printf("%s\n",argv[0]);
+	printf("%s\n",argv[1]);
+	printf("%s\n",argv[2]);
+	printf("%s\n",max_x_str);
+	printf("%s\n",max_y_str);
+	printf("%s\n",pix_x_str);
+	printf("%s\n",pix_y_str);
+	execl("./main.o", 
+	      argv[0],
+	      argv[1],
+	      argv[2],
+	      max_x_str,
+	      max_y_str,
+	      pix_x_str,
+	      pix_y_str,
+	      (char*)NULL);
 
-    // block on thread completion
-	for (int t=0; t<NUM_THREADS; ++t) {
-		pthread_join(threads[t], NULL);
-	}
 
-	// save file
-	printf("Saving image...\n");
-	save_file();
-	display_status(1, 1, status_length, 1);
+/*	printf("Arguments:\n");
+	printf("%s\n",argv[0]);
+	printf("%s\n",argv[1]);
+	printf("%s\n",argv[2]);
+	printf("%s\n",argv[3]);
+	printf("%s\n",argv[4]);
+	printf("%s\n",argv[5]);
+	printf("%s\n",argv[6]);
+	execl("./main.o", 
+	      argv[0],
+	      argv[1],
+	      argv[2],
+	      argv[3],
+	      argv[4],
+	      argv[5],
+	      argv[6],
+	      (char*)NULL);*/
 
-	// free the memory that was allocated
-	free(storage);
-	printf("Finished.\n\n");
+	//execv("./main.o", argv);
+	
 	
     return 0;
 }
