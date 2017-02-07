@@ -30,6 +30,7 @@ char *strcpy_no_nul(char *dest, const char *src);
 void write_data_s(const int x, const int y, char *rgb);
 void write_data_d(const int x, const int y, int r, int g, int b);
 void save_file();
+void display_status(double completed, double total, int length, int flush);
 
 
 // initialize globals
@@ -42,7 +43,7 @@ int current_row = 0;
 
 /* Main method */
 int main(int argc, char **argv) {
-
+	
 	// need 7 arguments: program name and 6 parameters
 	if (argc != 7) {
 		printf("Invalid number of arguments. Exiting with status 1.\n");
@@ -79,13 +80,24 @@ int main(int argc, char **argv) {
 		pthread_create(&(threads[t]), NULL, thread_run, NULL);
 	}
 
+	// display status bar
+	int status_length = 50;
+	printf("Computing image...\n");
+	while (current_row < pix_height) {
+		display_status(current_row, pix_height, status_length, 0);
+		usleep(10000);
+	}
+	display_status(current_row, pix_height, status_length, 1);
+
     // block on thread completion
 	for (int t=0; t<NUM_THREADS; ++t) {
 		pthread_join(threads[t], NULL);
 	}
 
 	// save file
+	printf("Saving image...\n");
 	save_file();
+	display_status(1, 1, status_length, 1);
 
 	// free the memory that was allocated
 	free(storage);
@@ -285,6 +297,32 @@ void save_file() {
 	}
 }
 
+
+void display_status(double completed, 
+                    double total, 
+                    int length, 
+                    int flush) {
+	if (flush) {
+		completed = 1; 
+		total = 1;
+	}
+	double progress = completed/total;
+	int num_to_display = (int)(progress*length);
+	char *bar = (char*)malloc(length+1);
+	for (int i=0; i<length; ++i) {
+		*(bar+i) = (i<num_to_display) ? '#' : '_';
+	}
+	bar[length] = '\0';
+
+	
+	//bar <- paste0(bar,"|",format(ceiling(progress*100),width=3),"%")
+	//command <- paste0("echo -ne '",bar,"\r'")
+	//system(command)
+	printf("%s | %d%%%c",bar,(int)(progress*100),'\r');
+	fflush(stdout);
+	if (flush) printf("\n");
+	free(bar);
+}
 
 
 

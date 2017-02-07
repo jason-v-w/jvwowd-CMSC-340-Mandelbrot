@@ -1,1 +1,4 @@
 overwrite all memory data with a delimiter
+add register keywork
+add check to malloc calls especially storage
+check with breems about seg fault
