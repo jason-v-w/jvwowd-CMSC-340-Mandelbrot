@@ -10,6 +10,7 @@
 #define NUM_THREADS 40
 
 
+// define a struct used to hold complex numbers
 typedef struct complex {
    double real;
    double imag;
@@ -38,6 +39,7 @@ pthread_mutex_t mutex;
 int current_row = 0;
 
 
+/* Main method */
 int main(int argc, char **argv) {
 
 	// need 7 arguments: program name and 6 parameters
@@ -92,6 +94,12 @@ int main(int argc, char **argv) {
 }
 
 
+/* This method will be called by each thread that is created.
+ * It will check the global current_row variable which is
+ * mutex guarded and increment the variable and also run the
+ * computation for the current row. It will do this as long
+ * as there are rows that still need to be computed
+ */
 void *thread_run() {
 	while (1) {
 		pthread_mutex_lock(&mutex);
@@ -105,12 +113,24 @@ void *thread_run() {
 	pthread_exit(NULL);
 }
 
+
+/* This method will, given the x and y coordinates of a pixel,
+ * convert the pixel to a complex value, compute the number
+ * of iterations for escape, and write the corresponding color
+ * into storage (in memory space). 
+ */
 void compute_pixel(int x, int y) {
 	complex c = pixel_to_complex(x,y);
 	int iter = compute_iterations(c);
 	set_color(x, y, iter);
 }
 
+
+/* Given a complex number, this function will return the
+ * number of iterations needed for the value to escape from
+ * the 2-unit circle centered at (0,0), unless that number
+ * exceeds MAX_ITER in which case MAX_ITER will be returned
+ */
 int compute_iterations(complex c) {
 	complex z = {0,0};
 	
@@ -124,6 +144,8 @@ int compute_iterations(complex c) {
 	return iter;
 }
 
+
+/* This is the representation of the basic mandelbrot function */
 complex f(complex z, complex c) {
 	complex res;
 	res.real = z.real*z.real - z.imag*z.imag + c.real;
@@ -131,6 +153,11 @@ complex f(complex z, complex c) {
 	return res;
 }
 
+
+/* This function saves the corresponding color of a given pixel
+ * to storage (memory space) based on its own internally defined
+ * color mapping based on the number of iterations provided.
+ */
 void set_color(int x, int y, int iterations) {
 	int r, g, b;
 	if (iterations == MAX_ITER) {
@@ -147,6 +174,13 @@ void set_color(int x, int y, int iterations) {
 	write_data_d(x,y,r,g,b);
 }
 
+
+/* Given the x and y coordinates of a pixel, this function will
+ * retun the complex value associated with the center of that
+ * pixel. This value is based on the real and imaginary bounds
+ * as well as the pixel dimensions provided via the terminal
+ * arguments.
+ */
 complex pixel_to_complex(int pix_x, int pix_y) {
     // TODO check this function for correctness
 
