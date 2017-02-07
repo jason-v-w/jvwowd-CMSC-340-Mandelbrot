@@ -28,7 +28,7 @@ void init_storage(void);
 char *strcpy_no_nul(char *dest, const char *src);
 void write_data_s(const int x, const int y, char *rgb);
 void write_data_d(const int x, const int y, int r, int g, int b);
-void save_file(char *name);
+void save_file();
 
 
 // initialize globals
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
 	}
 
 	// save file
-	save_file("mandelbrot.pbm");
+	save_file();
 
 	// convert file
 	// TODO
@@ -265,11 +265,14 @@ void write_data_d(const int x, const int y, int r, int g, int b) {
  * This will save the storage to the file with the name provided.
  * The resulting file will be formatted as a netpbm (pbm) file.
  */
-void save_file(char *name) {
-	FILE *file = fopen(name, "w");
+void save_file() {
+	
+	FILE *file = fopen("mandelbrot.pbm", "w");
 	fprintf(file, "%s\n%d %d\n%d\n%s", 
 	        "P3", pix_width, pix_height, 255, storage);
 	fclose(file);
+
+	system("convert mandelbrot.pbm mandelbrot.jpg");
 }
 
 
