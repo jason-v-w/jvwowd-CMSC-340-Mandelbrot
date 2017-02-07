@@ -215,16 +215,33 @@ void save_file(char *name) {
 		++base;
 	}
 
-	char* new_name = (char*)malloc(str_len+10); //arbitrary buffer
-	strcat(new_name, name);
+	char jpg[] = ".jpg";
+	char pbm[] = ".pbm";
+	int extension_buffer = 10;
+
+	// TODO add check for null pointer after malloc
 	
+	char* final_name = (char*)malloc(str_len+extension_buffer); //arbitrary buffer
+	char* temp_name = (char*)malloc(str_len+extension_buffer); //arbitrary buffer
+	strcpy(final_name, name);
+	strcpy(temp_name, name);
+	strcat(final_name, jpg);
+	strcat(temp_name, pbm);
 	
-	FILE *file = fopen(name, "w");
+	FILE *file = fopen(temp_name, "w");
 	fprintf(file, "%s\n%d %d\n%d\n%s", 
 	        "P3", pix_width, pix_height, 255, storage);
 	fclose(file);
+
+	char* cmd = (char*)malloc((str_len+extension_buffer)*2 + 7);
+	strcpy(cmd, "convert ");
+	strcat(cmd, temp_file);
+	strcat(cmd, " ");
+	strcat(cmd, "");
+	popen(cmd
 	
-	free(new_name);
+	free(final_name);
+	free(temp_name);
 }
 
 
