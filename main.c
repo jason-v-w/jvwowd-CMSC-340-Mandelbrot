@@ -5,7 +5,7 @@
 
 #define PIXEL_SIZE 12
 #define CHANNEL_SIZE 4
-#define MAX_ITER 1500
+#define MAX_ITER 50
 
 
 typedef struct complex {
