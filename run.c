@@ -20,11 +20,16 @@ int main(int argc, char **argv) {
 		if (argc == 1) {
 			// assign globals
 			printf("\nWhat is the minimum x coordinate?\n>> ");
-			scanf("%f", &min_x);
+			scanf(" %f", &min_x);
 			printf("What is the minimum y coordinate?\n>> ");
-			scanf("%f", &min_y);
+			scanf(" %f", &min_y);
 			printf("What is the x distance covered?\n>> ");
-			scanf("%f", &dist_x);
+			scanf(" %f", &dist_x);
+
+			printf("%f\n",min_x);
+			printf("%f\n",min_y);
+			printf("%f\n",dist_x);
+			
 		} else {
 			printf("Invalid number of arguments (%d).\
 					Exiting with status 1.\n", argc);
@@ -52,6 +57,35 @@ int main(int argc, char **argv) {
 	sprintf(max_y_str, "%f", max_y);
 	sprintf(pix_x_str, "%d", PIX_WIDTH);
 	sprintf(pix_y_str, "%d", PIX_HEIGHT);
+
+
+	printf("Arguments:\n");
+	printf("%s\n",argv[0]);
+	printf("%s\n",argv[1]);
+	printf("%s\n",argv[2]);
+	printf("%s\n",max_x_str);
+	printf("%s\n",max_y_str);
+	printf("%s\n",pix_x_str);
+	printf("%s\n",pix_y_str);
+
+
+/*	printf("Arguments:\n");
+	printf("%s\n",argv[0]);
+	printf("%s\n",argv[1]);
+	printf("%s\n",argv[2]);
+	printf("%s\n",argv[3]);
+	printf("%s\n",argv[4]);
+	printf("%s\n",argv[5]);
+	printf("%s\n",argv[6]);
+	execl("./main.o", 
+	      argv[0],
+	      argv[1],
+	      argv[2],
+	      argv[3],
+	      argv[4],
+	      argv[5],
+	      argv[6],
+	      (char*)NULL);*/
 
 	
 	execl("./main.o", 
