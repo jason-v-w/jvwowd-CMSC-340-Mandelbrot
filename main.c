@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 	
 	// need 7 arguments: program name and 6 parameters
 	if (argc != 7) {
-		printf("Invalid number of arguments. Exiting with status 1.\n");
+		printf("Invalid number of arguments (%d). Exiting main with status 1.\n", argc);
 		exit(1);
 	}
 
