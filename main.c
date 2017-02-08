@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
 
 	// display status bar
 	int status_length = 50;
-	printf("Computing image...\n");
+	printf("\nComputing image...\n");
 	while (current_row < pix_height) {
 		display_status(current_row, pix_height, status_length, 0);
 		usleep(10000);
@@ -101,6 +101,7 @@ int main(int argc, char **argv) {
 
 	// free the memory that was allocated
 	free(storage);
+	printf("Finished.\n\n");
 	
     return 0;
 }
@@ -298,6 +299,10 @@ void save_file() {
 }
 
 
+/* This function will display a status bar on the screen. It is the 
+ * caller's responsibility to ensure that no other data is printed
+ * to stdout, otherwise the results will not appear as desired.
+ */
 void display_status(double completed, 
                     double total, 
                     int length, 
@@ -306,21 +311,21 @@ void display_status(double completed,
 		completed = 1; 
 		total = 1;
 	}
+	
 	double progress = completed/total;
 	int num_to_display = (int)(progress*length);
 	char *bar = (char*)malloc(length+1);
+	
 	for (int i=0; i<length; ++i) {
 		*(bar+i) = (i<num_to_display) ? '#' : '_';
 	}
 	bar[length] = '\0';
-
 	
-	//bar <- paste0(bar,"|",format(ceiling(progress*100),width=3),"%")
-	//command <- paste0("echo -ne '",bar,"\r'")
-	//system(command)
 	printf("%s | %d%%%c",bar,(int)(progress*100),'\r');
 	fflush(stdout);
+	
 	if (flush) printf("\n");
+	
 	free(bar);
 }
 
