@@ -282,7 +282,7 @@ void save_file() {
 	
 	FILE *file = fopen("~mandelbrot.pbm", "w");
 	fprintf(file, "%s\n%d %d\n%d\n%s", 
-	        "P3", pix_width, pix_height, 255, storage);
+	        "P3", pix_width, pix_height, 255, (char*)storage);
 	fclose(file);
 
 	// try to convert the temporary file to a jpg and if that succeeds

@@ -34,7 +34,7 @@ int main() {
   // Generate system call		
   std::ostringstream strs;
 	strs.precision(100); // Set too high
-  strs << "./generate.o " 
+  strs << "./generate " 
        << real_min << " " 
        << imag_min << " " 
        << real_max << " " 
@@ -91,7 +91,7 @@ int main() {
 		// Generate system call		
 		std::ostringstream strs;
 		strs.precision(100); // Set too high
-		strs << "./generate.o " 
+		strs << "./generate " 
 		     << real_min << " " 
 		     << imag_min << " " 
 		     << real_max << " " 
@@ -159,7 +159,7 @@ int main() {
 	  //generate system call		
 	  std::ostringstream strs;
 		strs.precision(100); // Set too high
-	  strs << "./generate.o " 
+	  strs << "./generate " 
 	       << real_min << " " 
 	       << imag_min << " " 
 	       << real_max << " " 

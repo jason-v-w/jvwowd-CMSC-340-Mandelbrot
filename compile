@@ -1,0 +1,2 @@
+#!/bin/bash
+g++ -c graphics.cpp && g++ graphics.o -o mandelbrot -lsfml-graphics -lsfml-window -lsfml-system && rm graphics.o && gcc -o generate generate.c -lm -pthread
