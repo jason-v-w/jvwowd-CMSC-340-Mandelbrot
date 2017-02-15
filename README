@@ -1,0 +1,8 @@
+In order for the mandelbrot executable to run, I think sfml must be installed.
+I tried to statically link the libraries, but I had a lot of issues doing so. 
+
+Alternatively you can use the command line and pass parameters to the program. 
+From within the directory where the project is cloned to the format is:
+./generate   min_x   min_y   max_x   max_y   width_in_pixels   height_in_pixels
+
+After it runs, you can then view mandelbrot.jpg which in generates in the same directory.
