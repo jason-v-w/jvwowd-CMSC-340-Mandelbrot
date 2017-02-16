@@ -1,8 +1,15 @@
 In order for the mandelbrot executable to run, I think sfml must be installed.
 I tried to statically link the libraries, but I had a lot of issues doing so. 
+Once the application starts, use the mouse and left click and drag to select
+an area of the image to zoom in to. Give the program time to generate and
+load the new image, then you can zoom into another new area. If you right
+click it will generate and load the standard mandelbrot image between
+-2.5-i and 1+i. Currently there is no graphical indication of how long it will
+take to generate the image. If you run the program from a command line, though,
+it will display the progress in the terminal.
 
 Alternatively you can use the command line and pass parameters to the program. 
-From within the directory where the project is cloned to the format is:
-./generate   min_x   min_y   max_x   max_y   width_in_pixels   height_in_pixels
+From within the directory where the project is located the format is:
+./generate   min_real   min_imaginary   max_real   max_imaginary   width_in_pixels   height_in_pixels
 
 After it runs, you can then view mandelbrot.jpg which in generates in the same directory.
